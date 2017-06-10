@@ -112,29 +112,42 @@
         <div class="sidebar-content">
             <div class="sidebar-pane" id="home">
                 <h1 class="sidebar-header">
-                    sidebar-v2
+                    Viagens Parlamentares Brasileiros
                     <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
 
-                <select id="parlamentares-select" onchange="initMap(this.value)">
-                </select>
+                <p>
+                <h3><select id="parlamentares-select" onchange="initMap(this.value,null)">
+            </select></h3>
+                </p>
 
-                <label for="fader">Ano de </label>
-                <span id="range">2017</span>
+
+                <p>
+                <h3><label for="fader">Ano de </label>
+                <span id="range">2017</span></h3>
+                </p>
+                <p>
                 <input type="range" min="2014" max="2017" value="2017" id="fader" step="1" list="volsettings"
                        onchange="showValue(this),initMap(null, this.value)">
+
                 <datalist id="volsettings">
                     <option>2014</option>
                     <option>2015</option>
                     <option>2016</option>
                     <option>2017</option>
                 </datalist>
+                </p>
 
                 <script type="text/javascript">
                     function showValue(newValue) {
                         document.getElementById("range").innerHTML = newValue.value;
                     }
                 </script>
+
+
+                <p>
+                <h3>Ranking dos políticos que mais gastaram no ano selecionado</h3>
+                </p>
 
                 <div class="chart"></div>
             </div>
@@ -161,7 +174,7 @@
     <!--<script src="//maps.googleapis.com/maps/api/js" type="text/javascript"></script>-->
 
     <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHvjraZ_YQXZvFg8etDFaKUxp3EG1-DOs&libraries=geometry&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHvjraZ_YQXZvFg8etDFaKUxp3EG1-DOs&libraries=geometry&callback=initMapGoogle">
     </script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -190,228 +203,36 @@
 
         var lastYearSelected = "";
 
+        function initMapGoogle(){
+            initMap(null, null);
+        }
+
+        function selectParlamentar(nomeParlamentar) {
+            var sel = document.getElementById("parlamentares-select");
+            for(var i = 0, j = sel.options.length; i < j; ++i) {
+                if(sel.options[i].text === nomeParlamentar) {
+                    sel.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
         function initMap(indexParlamentarSelected, selectedYear) {
+
+            var sel = document.getElementById("parlamentares-select");
+
+            var nomeParlamentar;
+
+            if(sel.options[sel.selectedIndex] != null){
+                nomeParlamentar = sel.options[sel.selectedIndex].text;
+            }
+            console.log("selectedYear: " + selectedYear);
 
             var map = new google.maps.Map(d3.select("#map").node(), {
                 zoom: 4,
                 //draggableCursor: 'url(http://powerhut.co.uk/googlemaps/marker-images/image.png), crosshair',
                 //draggableCursor: 'url(https://maps.google.com/mapfiles/kml/shapes/beachflag_maps.png), crosshair',
-                center: new google.maps.LatLng(-14.2350, -51.9253),//{lat: -14.2350, lng: 51.9253}  // Australia.
-                style: [
-                    {
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#ebe3cd"
-                            }
-                        ]
-                    },
-                    {
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#523735"
-                            }
-                        ]
-                    },
-                    {
-                        "elementType": "labels.text.stroke",
-                        "stylers": [
-                            {
-                                "color": "#f5f1e6"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "administrative",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#c9b2a6"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "administrative.land_parcel",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#dcd2be"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "administrative.land_parcel",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#ae9e90"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "landscape.natural",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#dfd2ae"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#dfd2ae"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#93817c"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi.park",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "color": "#a5b076"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi.park",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#447530"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#f5f1e6"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.arterial",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#fdfcf8"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#f8c967"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#e9bc62"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway.controlled_access",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#e98d58"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway.controlled_access",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#db8555"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.local",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#806b63"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "transit.line",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#dfd2ae"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "transit.line",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#8f7d77"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "transit.line",
-                        "elementType": "labels.text.stroke",
-                        "stylers": [
-                            {
-                                "color": "#ebe3cd"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "transit.station",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#dfd2ae"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "color": "#b9d3c2"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#92998d"
-                            }
-                        ]
-                    }
-                ]
+                center: new google.maps.LatLng(-14.2350, -51.9253)
             });
 
             if (selectedYear == null) {
@@ -462,9 +283,9 @@
                 {ano: "2017", source: ranking2017}]
 
             for (index in listYears) {
-                console.log(listYears[index].ano);
+                //console.log(listYears[index].ano);
                 if (listYears[index].ano == selectedYear) {
-                    console.log("selected: " + listYears[index].ano);
+                    //console.log("selected: " + listYears[index].ano);
                     dataSelect = listYears[index].source;
                 }
             }
@@ -484,7 +305,7 @@
                     if (selectedYear == "2017") {
                         return d.grana / 400 + "px";
                     } else {
-                        return d.grana / 1300 + "px";
+                        return d.grana / 1700 + "px";
                     }
                 })
                 .text(function (d) {
@@ -554,10 +375,19 @@
                     select.options[i] = null;
                 }
 
-                for (index in parlamentares) {
+                /*for (index in parlamentares) {
+                    console.log("parl list: " + parlamentares[index]);
                     select.options[select.options.length] = new Option(parlamentares[index], index);
+                }*/
+
+                for(var i = 0 ; i < parlamentares.length ; i++){
+                    //console.log(parlamentares[i]);
+                    select.options[select.options.length] = new Option(parlamentares[i], i);
                 }
 
+                if(nomeParlamentar != null){
+                    selectParlamentar(nomeParlamentar);
+                }
 
                 // trying to add airport points
                 var overlay = new google.maps.OverlayView();
@@ -654,7 +484,11 @@
                                     "#481713"];
 
                                 for (var i = 0; i < allFlightPaths.length; i++) {
+
                                     if (airportsCount[i][0].origin == d.value.iata_code) {
+
+                                        console.log("all flights path: " , allFlightPaths[i]);
+                                        console.log("airportsCount[i][0]: " , airportsCount[i][0]);
 
                                         var countColor = "#C4C758";
 
@@ -690,8 +524,8 @@
                                                 content: html,
                                             });
                                             google.maps.event.addListener(polygon, 'mouseover', function (e) {
-                                                console.log(e);
-                                                console.log(polygon);
+                                                //console.log(e);
+                                                //console.log(polygon);
                                                 var latLng = path[1];
                                                 this.setOptions({fillOpacity: 0.1});
                                                 polygon.infoWindow.setPosition(latLng);

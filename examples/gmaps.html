@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<meta charset=utf-8>
 <head>
     <title>sidebar-v2 example</title>
 
@@ -243,37 +244,57 @@
              }*/
 
 
-            var ranking2014 = [{nome: "SERGIO ZVEITER - R$ 285591", grana: 285591},
-                {nome: "MARCO MAIA - R$ 296654", grana: 296654},
-                {nome: "WALDIR MARANHÃO - R$ 320661", grana: 320661},
-                {nome: "FELIPE BORNIER - R$ 321723", grana: 321723},
-                {nome: "BRUNO ARAÚJO - R$ 361510", grana: 361510},
+            var ranking2014 = [
+                {nome: "BONIFÁCIO DE ANDRADA - R$ 454067", grana: 454067},
                 {nome: "EDUARDO CUNHA - R$ 391532", grana: 391532},
-                {nome: "BONIFÁCIO DE ANDRADA - R$ 454067", grana: 454067}];
+                {nome: "BRUNO ARAÚJO - R$ 361510", grana: 361510},
+                {nome: "FELIPE BORNIER - R$ 321723", grana: 321723},
+                {nome: "WALDIR MARANHÃO - R$ 320661", grana: 320661},
+                {nome: "MARCO MAIA - R$ 296654", grana: 296654},
+                {nome: "SERGIO ZVEITER - R$ 285591", grana: 285591},
+                {nome: "PAULO PEREIRA DA SILVA - R$ 278502", grana: 278502},
+                {nome: "OSMAR TERRA - R$ 257622", grana: 257622},
+                {nome: "MIGUEL CORRÊA - R$ 247700", grana: 247700}
+                ];
 
-            var ranking2015 = [{nome: "BONIFÁCIO DE ANDRADA - R$ 355168", grana: 355168},
-                {nome: "WALDIR MARANHÃO - R$ 360403", grana: 360403},
-                {nome: "PAULO PEREIRA DA SILVA - R$ 387417", grana: 387417},
-                {nome: "MIRO TEIXEIRA - R$ 474814", grana: 474814},
-                {nome: "WALDIR MARANHÃO - R$ 504166", grana: 504166},
+            var ranking2015 = [
+                {nome: "LEONARDO PICCIANI - R$ 641324", grana: 641324},
                 {nome: "FELIPE BORNIER - R$ 509297", grana: 509297},
-                {nome: "LEONARDO PICCIANI - R$ 641324", grana: 641324}];
+                {nome: "WALDIR MARANHÃO - R$ 504166", grana: 504166},
+                {nome: "MIRO TEIXEIRA - R$ 474814", grana: 474814},
+                {nome: "PAULO PEREIRA DA SILVA - R$ 387417", grana: 387417},
+                {nome: "WALDIR MARANHÃO - R$ 360403", grana: 360403},
+                {nome: "BONIFÁCIO DE ANDRADA - R$ 355168", grana: 355168},
+                {nome: "LUIZ SÉRGIO - R$ 338385", grana: 338385},
+                {nome: "ALICE PORTUGAL - R$ 336398", grana: 336398},
+                {nome: "OSMAR TERRA - R$ 304770", grana: 304770}
+                ];
 
-            var ranking2016 = [{nome: "JULIO LOPES - R$ 343246", grana: 343246},
-                {nome: "WALDIR MARANHÃO - R$ 351438", grana: 351438},
-                {nome: "MÁRIO HERINGER - R$ 366932", grana: 366932},
-                {nome: "MIRO TEIXEIRA - R$ 368683", grana: 368683},
-                {nome: "MARINALDO ROSENDO - R$ 379935", grana: 379935},
+            var ranking2016 = [
+                {nome: "FELIPE BORNIER - R$ 519504", grana: 519504},
                 {nome: "SORAYA SANTOS - R$ 413228", grana: 413228},
-                {nome: "FELIPE BORNIER - R$ 519504", grana: 519504}];
+                {nome: "MARINALDO ROSENDO - R$ 379935", grana: 379935},
+                {nome: "MIRO TEIXEIRA - R$ 368683", grana: 368683},
+                {nome: "MÁRIO HERINGER - R$ 366932", grana: 366932},
+                {nome: "WALDIR MARANHÃO - R$ 351438", grana: 351438},
+                {nome: "JULIO LOPES - R$ 343246", grana: 343246},
+                {nome: "ALESSANDRO MOLON - R$ 338494", grana: 338494},
+                {nome: "DULCE MIRANDA - R$ 322066", grana: 322066},
+                {nome: "SÉRGIO MORAES - R$ 304855", grana: 304855}
+                ];
 
-            var ranking2017 = [{nome: "IVAN VALENTE - R$ 55587", grana: 55587},
-                {nome: "ARTHUR LIRA - R$ 60294", grana: 60294},
-                {nome: "FELIPE BORNIER - R$ 63757", grana: 63757},
-                {nome: "SORAYA SANTOS - R$ 69374", grana: 69374},
-                {nome: "MARINALDO ROSENDO - R$ 76100", grana: 76100},
+            var ranking2017 = [
+                {nome: "WALDIR MARANHÃO - R$ 113755", grana: 113755},
                 {nome: "JULIO LOPES - R$ 78615", grana: 78615},
-                {nome: "WALDIR MARANHÃO - R$ 113755", grana: 113755}];
+                {nome: "MARINALDO ROSENDO - R$ 76100", grana: 76100},
+                {nome: "SORAYA SANTOS - R$ 69374", grana: 69374},
+                {nome: "FELIPE BORNIER - R$ 63757", grana: 63757},
+                {nome: "ARTHUR LIRA - R$ 60294", grana: 60294},
+                {nome: "IVAN VALENTE - R$ 55587", grana: 55587},
+                {nome: "ALESSANDRO MOLON - R$ 54613", grana: 54613},
+                {nome: "SILVIO TORRES - R$ 53497", grana: 53497},
+                {nome: "CÉSAR MESSIAS - R$ 52307", grana: 52307}
+                ];
 
             var dataSelect = null;
 
@@ -283,9 +304,7 @@
                 {ano: "2017", source: ranking2017}]
 
             for (index in listYears) {
-                //console.log(listYears[index].ano);
                 if (listYears[index].ano == selectedYear) {
-                    //console.log("selected: " + listYears[index].ano);
                     dataSelect = listYears[index].source;
                 }
             }
@@ -303,13 +322,25 @@
                 .enter().append("div")
                 .style("width", function (d) {
                     if (selectedYear == "2017") {
-                        return d.grana / 400 + "px";
+                        return d.grana / 300 + "px";
+                    } else if (selectedYear == "2014")  {
+                        return d.grana / 1400 + "px";
                     } else {
                         return d.grana / 1700 + "px";
                     }
                 })
                 .text(function (d) {
                     return d.nome
+                })
+                .style("background-color", function(d, i) {
+                    console.log(d);
+                    console.log(i);
+
+                    if(i==0){
+                        return "#f62c0d";
+                    }
+
+                    //return color(i);
                 });
 
 
@@ -487,8 +518,8 @@
 
                                     if (airportsCount[i][0].origin == d.value.iata_code) {
 
-                                        console.log("all flights path: " , allFlightPaths[i]);
-                                        console.log("airportsCount[i][0]: " , airportsCount[i][0]);
+                                        //console.log("all flights path: " , allFlightPaths[i]);
+                                        //console.log("airportsCount[i][0]: " , airportsCount[i][0]);
 
                                         var countColor = "#C4C758";
 

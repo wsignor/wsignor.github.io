@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+<meta charset=utf-8>
+<head>
+    <title>sidebar-v2 example</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/gmaps-sidebar.css" />
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+        .lorem {
+            font-style: italic;
+            color: #AAA;
+        }
+        /*html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }*/
+        /*#map {
+            height: 100%;
+            float: left;
+            width: 63%;
+            height: 100%;
+        }*/
+        .stations, .stations svg {
+            position: absolute;
+        }
+        .stations svg {
+            width: 60px;
+            height: 20px;
+            padding-right: 100px;
+            font: 10px sans-serif;
+        }
+        .stations circle {
+            fill: brown;
+            stroke: black;
+            stroke-width: 1.5px;
+        }
+        .airports, .airports svg {
+            position: absolute;
+        }
+        .airports svg {
+            width: 60px;
+            height: 20px;
+            padding-right: 100px;
+            font: 10px sans-serif;
+        }
+        .airports circle {
+            fill: #009aff;
+            stroke: black;
+            stroke-width: 1.5px;
+        }
+        .stations circle:hover {
+            fill: blue;
+            cursor: pointer;
+        }
+        .marker_text {
+            fill: black;
+            visibility: hidden;
+        }
+        .chart div {
+            font: 10px sans-serif;
+            background-color: steelblue;
+            text-align: right;
+            padding: 3px;
+            margin: 1px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar" class="sidebar collapsed">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+                <!--<li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
+                <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a></li>-->
+            </ul>
+
+            <ul role="tablist">
+                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="sidebar-content">
+            <div class="sidebar-pane" id="home">
+                <h1 class="sidebar-header">
+                    Viagens Parlamentares Brasileiros
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+
+                <p>
+                <h3><select id="parlamentares-select" onchange="initMap(this.value,null)">
+            </select></h3>
+                </p>
+
+
+                <p>
+                <h3><label for="fader">Ano de </label>
+                <span id="range">2017</span></h3>
+                </p>
+                <p>
+                <input type="range" min="2014" max="2017" value="2017" id="fader" step="1" list="volsettings"
+                       onchange="showValue(this),initMap(null, this.value)">
+
+                <datalist id="volsettings">
+                    <option>2014</option>
+                    <option>2015</option>
+                    <option>2016</option>
+                    <option>2017</option>
+                </datalist>
+                </p>
+
+                <script type="text/javascript">
+                    function showValue(newValue) {
+                        document.getElementById("range").innerHTML = newValue.value;
+                    }
+                </script>
+
+
+                <p>
+                <h3>Ranking dos políticos que mais gastaram no ano selecionado</h3>
+                </p>
+
+                <div class="chart"></div>
+            </div>
+
+            <!--<div class="sidebar-pane" id="profile">
+                <h1 class="sidebar-header">Profile<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+            <div class="sidebar-pane" id="messages">
+                <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+            <div class="sidebar-pane" id="settings">
+                <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>-->
+        </div>
+    </div>
+
+    <div id="map" class="sidebar-map"></div>
+
+    <!--<a href="https://github.com/Turbo87/sidebar-v2/"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>-->
+
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!--<script src="//maps.googleapis.com/maps/api/js" type="text/javascript"></script>-->
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHvjraZ_YQXZvFg8etDFaKUxp3EG1-DOs&libraries=geometry&callback=initMapGoogle">
+    </script>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="js/jquery-sidebar.js"></script>
+
+    <script>
+        /*function initialize() {
+            var map = new google.maps.Map(document.getElementById("map"), {
+                center: new google.maps.LatLng(51.2, 7),
+                zoom: 5,
+                mapTypeId: google.maps.MapTypeId.TERRAIN,
+            });
+        }*/
+        var sidebar = $('#sidebar').sidebar();
+        var parlamentares = [];
+        var allFlightPaths = [];
+        var airportsCount = [];
+        var flightPathsBeingDisplayed = [];
+        var lastYearSelected = "";
+        function initMapGoogle(){
+            initMap(null, null);
+        }
+        function selectParlamentar(nomeParlamentar) {
+            var sel = document.getElementById("parlamentares-select");
+            for(var i = 0, j = sel.options.length; i < j; ++i) {
+                if(sel.options[i].text === nomeParlamentar) {
+                    sel.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        function initMap(indexParlamentarSelected, selectedYear) {
+            var sel = document.getElementById("parlamentares-select");
+            var nomeParlamentar;
+            if(sel.options[sel.selectedIndex] != null){
+                nomeParlamentar = sel.options[sel.selectedIndex].text;
+            }
+            console.log("selectedYear: " + selectedYear);
+            var map = new google.maps.Map(d3.select("#map").node(), {
+                zoom: 4,
+                //draggableCursor: 'url(http://powerhut.co.uk/googlemaps/marker-images/image.png), crosshair',
+                //draggableCursor: 'url(https://maps.google.com/mapfiles/kml/shapes/beachflag_maps.png), crosshair',
+                center: new google.maps.LatLng(-14.2350, -51.9253)
+            });
+            if (selectedYear == null) {
+                selectedYear = 2017;
+            } /*else if (selectedYear != lastYearSelected) {
+             parlamentares = [];
+             lastYearSelected = selectedYear;
+             }*/
+            var ranking2014 = [
+                {nome: "BONIFÁCIO DE ANDRADA - R$ 454067", grana: 454067},
+                {nome: "EDUARDO CUNHA - R$ 391532", grana: 391532},
+                {nome: "BRUNO ARAÚJO - R$ 361510", grana: 361510},
+                {nome: "FELIPE BORNIER - R$ 321723", grana: 321723},
+                {nome: "WALDIR MARANHÃO - R$ 320661", grana: 320661},
+                {nome: "MARCO MAIA - R$ 296654", grana: 296654},
+                {nome: "SERGIO ZVEITER - R$ 285591", grana: 285591},
+                {nome: "PAULO PEREIRA DA SILVA - R$ 278502", grana: 278502},
+                {nome: "OSMAR TERRA - R$ 257622", grana: 257622},
+                {nome: "MIGUEL CORRÊA - R$ 247700", grana: 247700}
+                ];
+            var ranking2015 = [
+                {nome: "LEONARDO PICCIANI - R$ 641324", grana: 641324},
+                {nome: "FELIPE BORNIER - R$ 509297", grana: 509297},
+                {nome: "WALDIR MARANHÃO - R$ 504166", grana: 504166},
+                {nome: "MIRO TEIXEIRA - R$ 474814", grana: 474814},
+                {nome: "PAULO PEREIRA DA SILVA - R$ 387417", grana: 387417},
+                {nome: "WALDIR MARANHÃO - R$ 360403", grana: 360403},
+                {nome: "BONIFÁCIO DE ANDRADA - R$ 355168", grana: 355168},
+                {nome: "LUIZ SÉRGIO - R$ 338385", grana: 338385},
+                {nome: "ALICE PORTUGAL - R$ 336398", grana: 336398},
+                {nome: "OSMAR TERRA - R$ 304770", grana: 304770}
+                ];
+            var ranking2016 = [
+                {nome: "FELIPE BORNIER - R$ 519504", grana: 519504},
+                {nome: "SORAYA SANTOS - R$ 413228", grana: 413228},
+                {nome: "MARINALDO ROSENDO - R$ 379935", grana: 379935},
+                {nome: "MIRO TEIXEIRA - R$ 368683", grana: 368683},
+                {nome: "MÁRIO HERINGER - R$ 366932", grana: 366932},
+                {nome: "WALDIR MARANHÃO - R$ 351438", grana: 351438},
+                {nome: "JULIO LOPES - R$ 343246", grana: 343246},
+                {nome: "ALESSANDRO MOLON - R$ 338494", grana: 338494},
+                {nome: "DULCE MIRANDA - R$ 322066", grana: 322066},
+                {nome: "SÉRGIO MORAES - R$ 304855", grana: 304855}
+                ];
+            var ranking2017 = [
+                {nome: "WALDIR MARANHÃO - R$ 113755", grana: 113755},
+                {nome: "JULIO LOPES - R$ 78615", grana: 78615},
+                {nome: "MARINALDO ROSENDO - R$ 76100", grana: 76100},
+                {nome: "SORAYA SANTOS - R$ 69374", grana: 69374},
+                {nome: "FELIPE BORNIER - R$ 63757", grana: 63757},
+                {nome: "ARTHUR LIRA - R$ 60294", grana: 60294},
+                {nome: "IVAN VALENTE - R$ 55587", grana: 55587},
+                {nome: "ALESSANDRO MOLON - R$ 54613", grana: 54613},
+                {nome: "SILVIO TORRES - R$ 53497", grana: 53497},
+                {nome: "CÉSAR MESSIAS - R$ 52307", grana: 52307}
+                ];
+            var dataSelect = null;
+            var listYears = [{ano: "2014", source: ranking2014},
+                {ano: "2015", source: ranking2015},
+                {ano: "2016", source: ranking2016},
+                {ano: "2017", source: ranking2017}]
+            for (index in listYears) {
+                if (listYears[index].ano == selectedYear) {
+                    dataSelect = listYears[index].source;
+                }
+            }
+            d3.select(".chart").selectAll("div").remove();
+            var x = d3.scaleLinear()
+                .domain([0, d3.max(dataSelect)])
+                .range([0, 420]);
+            d3.select(".chart")
+                .selectAll("div")
+                .data(dataSelect)
+                .enter().append("div")
+                .style("width", function (d) {
+                    if (selectedYear == "2017") {
+                        return d.grana / 300 + "px";
+                    } else if (selectedYear == "2014")  {
+                        return d.grana / 1400 + "px";
+                    } else {
+                        return d.grana / 1700 + "px";
+                    }
+                })
+                .text(function (d) {
+                    return d.nome
+                })
+                .style("background-color", function(d, i) {
+                    console.log(d);
+                    console.log(i);
+                    if(i==0){
+                        return "#f62c0d";
+                    }
+                    //return color(i);
+                });
+            d3.queue()
+                .defer(d3.csv, "world-airport-codes.csv", typeAirport)
+                .defer(d3.csv, "Ano-" + selectedYear + "-parsed.csv", typeFlight)
+                .await(ready);
+            function ready(error, airports, flights) {
+                if (error) throw error;
+                var airportByIata = d3.map(airports, function (d) {
+                    return d.iata_code;
+                });
+                if (parlamentares == null) {
+                    parlamentares = [];
+                }
+                allFlightPaths = [];
+                airportsCount = [];
+                // check which airports really have flights from our dataset
+                flights.forEach(function (flight) {
+                    if (indexParlamentarSelected != null && flight.name == parlamentares[indexParlamentarSelected]) {
+                        var source = airportByIata.get(flight.origin),
+                            target = airportByIata.get(flight.destination);
+                        if (source != null && target != null) {
+                            source.arcs.coordinates.push([source, target]);
+                            // show airports that are origin - do not include the ones that are only destination
+                            //target.arcs.coordinates.push([target, source]);
+                            allFlightPaths[allFlightPaths.length] = [
+                                new google.maps.LatLng(source.latitude_deg, source.longitude_deg),
+                                new google.maps.LatLng(target.latitude_deg, target.longitude_deg)
+                            ];
+                            airportsCount[airportsCount.length] = [
+                                flight
+                            ];
+                        }
+                    }
+                    if (!contains.call(parlamentares, flight.name)) {
+                        //populate list with parlamentares
+                        //console.log(flight.name);
+                        parlamentares[parlamentares.length] = flight.name;
+                    }
+                });
+                airports = airports
+                    .filter(function (d) {
+                        return d.arcs.coordinates.length;
+                    });
+                var select = document.getElementById("parlamentares-select");
+                var length = select.options.length;
+                for (i = 0; i < length; i++) {
+                    select.options[i] = null;
+                }
+                /*for (index in parlamentares) {
+                    console.log("parl list: " + parlamentares[index]);
+                    select.options[select.options.length] = new Option(parlamentares[index], index);
+                }*/
+                for(var i = 0 ; i < parlamentares.length ; i++){
+                    //console.log(parlamentares[i]);
+                    select.options[select.options.length] = new Option(parlamentares[i], i);
+                }
+                if(nomeParlamentar != null){
+                    selectParlamentar(nomeParlamentar);
+                }
+                // trying to add airport points
+                var overlay = new google.maps.OverlayView();
+                // Add the container when the overlay is added to the map.
+                overlay.onAdd = function () {
+                    var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
+                        .attr("class", "airports");
+                    // Draw each marker as a separate SVG element.
+                    // We could use a single SVG, but what size would it have?
+                    overlay.draw = function () {
+                        var projection = this.getProjection(),
+                            padding = 10;
+                        var marker = layer.selectAll("svg")
+                            .data(d3.entries(airports))
+                            .each(transform) // update existing markers
+                            .enter().append("svg")
+                            .each(transform)
+                            .attr("class", "marker")
+                            .on("mouseover", expandOnMouseOver)
+                            .on("mouseout", contractOnMouseOut);
+                        function expandOnMouseOver() {
+                            d3.select(this).selectAll("circle").transition()
+                                .duration(50)
+                                .attr("r", 9)
+                        }
+                        function contractOnMouseOut() {
+                            d3.select(this).selectAll("circle").transition()
+                                .duration(100)
+                                .attr("r", 4.5)
+                        }
+                        // Add a circle.
+                        marker.append("svg:circle")
+                        //.attr("r", function(d){adoptCircleSize(d)})
+                            .attr("r", 4.5)
+                            .attr("cx", padding)
+                            .attr("cy", padding)
+                            /*.on("dblclick",function(d){
+                             hideRouteOnMouseOur(d)
+                             })*/
+                            //.on("dblclick",contractNode)
+                            .on("click", function (d) {
+                                displayRouteOnMouseOver(d)
+                            })
+                        //.on("mouseover",expandNode)
+                        /*.on("mouseout",function(d){
+                         hideRouteOnMouseOur(d)
+                         })*/;
+                        // provides node animation for mouseover
+                        function expandNode() {
+                            d3.select(this).transition()
+                                .duration(100)
+                                .attr("r", 7)
+                        };
+                        // provides node animation for mouseout
+                        function contractNode() {
+                            d3.select(this).transition()
+                                .duration(100)
+                                .attr("r", 4.5)
+                        };
+                        function onLoadCircle() {
+                            //console.log("called during onload");
+                        }
+                        function adoptCircleSize(d) {
+                            for (var i = 0; i < airportsCount.length; i++) {
+                                //console.log(airportsCount[i][0]);
+                                if (airportsCount[i][0].origin == d.value.iata_code) {
+                                    return airportsCount[i][0].count;
+                                }
+                            }
+                        };
+                        function displayRouteOnMouseOver(d) {
+                            if (flightPathsBeingDisplayed.length == 0) {
+                                //flightPathsBeingDisplayed = [];
+                                var colors = ["#f5ff00",
+                                    "#d8d60f",
+                                    "#D66E52",
+                                    "#FF4420",
+                                    "#481713"];
+                                for (var i = 0; i < allFlightPaths.length; i++) {
+                                    if (airportsCount[i][0].origin == d.value.iata_code) {
+                                        //console.log("all flights path: " , allFlightPaths[i]);
+                                        //console.log("airportsCount[i][0]: " , airportsCount[i][0]);
+                                        var countColor = "#C4C758";
+                                        if (airportsCount[i][0].count == 1) {
+                                            countColor = colors[0];
+                                        } else if (airportsCount[i][0].count > 1 && airportsCount[i][0].count <= 4) {
+                                            countColor = colors[1];
+                                        } else if (airportsCount[i][0].count > 5 && airportsCount[i][0].count <= 7) {
+                                            countColor = colors[2];
+                                        } else if (airportsCount[i][0].count > 7 && airportsCount[i][0].count <= 10) {
+                                            countColor = colors[3];
+                                        } else if (airportsCount[i][0].count > 10) {
+                                            countColor = colors[4];
+                                        }
+                                        var flightPaths1 = new google.maps.Polyline({
+                                            //path: allFlightPaths[i],
+                                            strokeColor: countColor,
+                                            strokeOpacity: 2,
+                                            strokeWeight: 6,
+                                            geodesic: true,
+                                            map: map
+                                        });
+                                        //flightPaths1.setMap(map);
+                                        flightPaths1.setPath(allFlightPaths[i]);
+                                        flightPathsBeingDisplayed.push(flightPaths1);
+                                        function attachPolygonInfoWindow(polygon, html, path) {
+                                            polygon.infoWindow = new google.maps.InfoWindow({
+                                                content: html,
+                                            });
+                                            google.maps.event.addListener(polygon, 'mouseover', function (e) {
+                                                //console.log(e);
+                                                //console.log(polygon);
+                                                var latLng = path[1];
+                                                this.setOptions({fillOpacity: 0.1});
+                                                polygon.infoWindow.setPosition(latLng);
+                                                polygon.infoWindow.open(map);
+                                            });
+                                            google.maps.event.addListener(polygon, 'mouseout', function () {
+                                                this.setOptions({fillOpacity: 0.35});
+                                                polygon.infoWindow.close();
+                                            });
+                                        }
+                                        attachPolygonInfoWindow(flightPaths1, "<strong>" + airportsCount[i][0].count + "</strong>", allFlightPaths[i]);
+                                    }
+                                }
+                            } else {
+                                for (var i = 0; i < flightPathsBeingDisplayed.length; i++) {
+                                    flightPathsBeingDisplayed[i].setMap(null);
+                                }
+                                flightPathsBeingDisplayed = [];
+                            }
+                        };
+                        function hideRouteOnMouseOur(d) {
+                            for (var i = 0; i < flightPathsBeingDisplayed.length; i++) {
+                                flightPathsBeingDisplayed[i].setMap(null);
+                            }
+                        };
+                        // Add a label.
+                        marker.append("text")
+                            .attr("x", padding + 7)
+                            .attr("y", padding)
+                            .attr("dy", ".31em")
+                            .text(function (d) {
+                                return d.value.iata_code;
+                            });
+                        function transform(d) {
+                            d = new google.maps.LatLng(d.value[1], d.value[0]);
+                            d = projection.fromLatLngToDivPixel(d);
+                            return d3.select(this)
+                                .style("left", (d.x - padding) + "px")
+                                .style("top", (d.y - padding) + "px");
+                        }
+                    };
+                };
+                // Bind our overlay to the map…
+                overlay.setMap(map);
+                // end of airport points
+            }
+        }
+        var contains = function (needle) {
+            // Per spec, the way to identify NaN is that it is not equal to itself
+            var findNaN = needle !== needle;
+            var indexOf;
+            if (!findNaN && typeof Array.prototype.indexOf === 'function') {
+                indexOf = Array.prototype.indexOf;
+            } else {
+                indexOf = function (needle) {
+                    var i = -1, index = -1;
+                    for (i = 0; i < this.length; i++) {
+                        var item = this[i];
+                        if ((findNaN && item !== item) || item === needle) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    return index;
+                };
+            }
+            return indexOf.call(this, needle) > -1;
+        };
+        function placeMarker(latLng, map) {
+            var marker = new google.maps.Marker({
+                position: latLng,
+                map: map
+            });
+        }
+        function typeAirport(d) {
+            d[0] = +d.longitude_deg;
+            d[1] = +d.latitude_deg;
+            d.arcs = {type: "MultiLineString", coordinates: []};
+            return d;
+        }
+        function typeFlight(d) {
+            d.count = +d.count;
+            return d;
+        }
+    </script>
+</body>
+</html>

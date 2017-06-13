@@ -302,8 +302,8 @@
                     //return color(i);
                 });
             d3.queue()
-                .defer(d3.csv, "world-airport-codes.csv", typeAirport)
-                .defer(d3.csv, "Ano-" + selectedYear + "-parsed.csv", typeFlight)
+                .defer(d3.csv, "examples/world-airport-codes.csv", typeAirport)
+                .defer(d3.csv, "examples/Ano-" + selectedYear + "-parsed.csv", typeFlight)
                 .await(ready);
             function ready(error, airports, flights) {
                 if (error) throw error;
